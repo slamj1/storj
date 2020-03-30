@@ -109,7 +109,7 @@ install_sim(){
 
     if [ -d "${work_dir}/cmd/gateway" ]; then
         pushd ${work_dir}/cmd/gateway
-            go build -race -v -o ${bin_dir}/gateway storj.io/storj/cmd/gateway #>/dev/null 2>&1
+            go build -race -v -o ${bin_dir}/gateway storj.io/storj/cmd/gateway >/dev/null 2>&1
         popd
     else
         rm -rf .build/gateway-tmp
