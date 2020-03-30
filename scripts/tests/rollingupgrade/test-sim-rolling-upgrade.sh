@@ -210,14 +210,11 @@ for version in ${unique_versions}; do
     then
         echo "Installing storj-sim for ${version} in ${dir}."
         pushd ${dir}
-        # uncomment for Jenkins testing:
-        install_sim ${dir} ${bin_dir}
-        # uncomment for local testing:
-        # GOBIN=${bin_dir} make -C "${dir}" install-sim > /dev/null 2>&1
+        GOBIN=${bin_dir} make -C "${dir}" install-sim
         echo "finished installing"
         popd
         echo "Setting up storj-sim for ${version}. Bin: ${bin_dir}, Config: ${dir}/local-network"
-        PATH=${bin_dir}:$PATH storj-sim -x --host="${STORJ_NETWORK_HOST4}" --postgres="${STORJ_SIM_POSTGRES}" --config-dir "${dir}/local-network" network setup > /dev/null 2>&1
+        PATH=${bin_dir}:$PATH storj-sim -x --host="${STORJ_NETWORK_HOST4}" --postgres="${STORJ_SIM_POSTGRES}" --config-dir "${dir}/local-network" network setup
         echo "Finished setting up. ${dir}/local-network:" $(ls ${dir}/local-network)
         echo "Binary shasums:"
         shasum ${bin_dir}/satellite
@@ -228,10 +225,7 @@ for version in ${unique_versions}; do
         echo "Installing uplink for ${version} in ${dir}."
         pushd ${dir}
         mkdir -p ${bin_dir}
-        # uncomment for Jenkins testing:
-        go install -race -v -o ${bin_dir}/uplink storj.io/storj/cmd/uplink >/dev/null 2>&1
-        # uncomment for local testing:
-        # GOBIN=${bin_dir} go install -race -v storj.io/storj/cmd/uplink > /dev/null 2>&1
+        GOBIN=${bin_dir} go install -race -v storj.io/storj/cmd/uplink > /dev/null 2>&1
         popd
         echo "Finished installing. ${bin_dir}:" $(ls ${bin_dir})
         echo "Binary shasums:"
