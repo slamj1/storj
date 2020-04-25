@@ -82,7 +82,7 @@ func TestCollector(t *testing.T) {
 			require.NoError(t, err)
 
 			// ensure we have deleted used serials
-			err = usedSerials.IterateAll(ctx, func(id storj.NodeID, serial storj.SerialNumber, expiration time.Time) {
+			err = usedSerials.IterateAll(ctx, func(_ storj.NodeID, _ storj.SerialNumber, _ time.Time) {
 				serialsPresent++
 			})
 			require.NoError(t, err)

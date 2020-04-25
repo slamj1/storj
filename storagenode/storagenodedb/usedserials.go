@@ -39,8 +39,22 @@ func (db *usedSerialsDB) Add(ctx context.Context, satelliteID storj.NodeID, seri
 func (db *usedSerialsDB) DeleteExpired(ctx context.Context, now time.Time) (err error) {
 	defer mon.Task()(&ctx)(&err)
 
-	_, err = db.ExecContext(ctx, `DELETE FROM used_serial_ WHERE expiration < ?`, now.UTC())
-	return ErrUsedSerials.Wrap(err)
+	for {
+		rows, err := db.ExecContext(ctx, `
+			DELETE FROM used_serial_ WHERE (satellite_id, serial_number) in (
+				SELECT satellite_id, serial_number FROM used_serial_ WHERE expiration < ? LIMIT 1000
+			)`, now.UTC())
+		if err != nil {
+			return ErrUsedSerials.Wrap(err)
+		}
+		count, err := rows.RowsAffected()
+		if err != nil {
+			return ErrUsedSerials.Wrap(err)
+		}
+		if count == 0 {
+			return nil
+		}
+	}
 }
 
 // IterateAll iterates all serials.
