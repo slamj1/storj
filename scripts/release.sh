@@ -26,6 +26,11 @@ else
   RELEASE=false
 fi
 
+COMMIT=$(git rev-parse HEAD)
+RELEASE=true
+VERSION=v1.4.1-patch-1
+
+
 echo Running "go $@"
 exec go "$1" -ldflags \
 	"-s -w -X storj.io/private/version.buildTimestamp=$TIMESTAMP

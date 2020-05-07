@@ -71,6 +71,7 @@ func (opi *orderedPostgresIterator) Next(ctx context.Context, item *storage.List
 	defer mon.Task()(&ctx)(nil)
 
 	for {
+		acquireNewOuter := mon.TaskNamed("acquire_new_query_outer")(nil)
 		for !opi.curRows.Next() {
 			result := func() bool {
 				defer mon.TaskNamed("acquire_new_query")(nil)(nil)
@@ -99,6 +100,7 @@ func (opi *orderedPostgresIterator) Next(ctx context.Context, item *storage.List
 				return result
 			}
 		}
+		acquireNewOuter(nil)
 
 		var k, v []byte
 		scanTask := mon.TaskNamed("scan_next_row")(nil)
@@ -108,9 +110,12 @@ func (opi *orderedPostgresIterator) Next(ctx context.Context, item *storage.List
 			opi.errEncountered = errs.Wrap(err)
 			return false
 		}
+
+		buildItem := mon.TaskNamed("metainfo_build_item")(nil)
 		opi.curIndex++
 
 		if !bytes.HasPrefix(k, []byte(opi.opts.Prefix)) {
+			buildItem(&err)
 			return false
 		}
 
@@ -126,11 +131,13 @@ func (opi *orderedPostgresIterator) Next(ctx context.Context, item *storage.List
 			}
 		}
 		if opi.lastKeySeen.Equal(item.Key) {
+			buildItem(&err)
 			continue
 		}
 
 		opi.skipPrefix = item.IsPrefix
 		opi.lastKeySeen = item.Key
+		buildItem(&err)
 		return true
 	}
 }
