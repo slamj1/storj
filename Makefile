@@ -281,7 +281,7 @@ versioncontrol_%:
 
 
 COMPONENTLIST := certificates identity inspector satellite storagenode storagenode-updater uplink versioncontrol
-OSARCHLIST    := darwin_amd64 linux_amd64
+OSARCHLIST    := darwin_amd64 linux_amd64 linux_arm linux_arm64 windows_amd64 freebsd_amd64
 BINARIES      := $(foreach C,$(COMPONENTLIST),$(foreach O,$(OSARCHLIST),$C_$O))
 .PHONY: binaries
 binaries: ${BINARIES} ## Build certificates, identity, inspector, satellite, storagenode, uplink, and versioncontrol binaries (jenkins)
